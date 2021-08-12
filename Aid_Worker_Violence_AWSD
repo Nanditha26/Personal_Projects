@@ -1,0 +1,117 @@
+#packages
+library(tidyr)
+library(readr)
+library(here)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(showtext)
+library(gifski)
+library(gganimate)
+library(png)
+library(ggbump)
+
+#read data
+aid_violence <- read_csv(here("Datasets", "security_incidents_2021-08-12.csv"))
+
+#theme
+my_colors = c("#ff0000","#ff8700","#ffb8d1","#e4ff1a","#29bf12",
+              "#d0ffb7","#0aefff","#147df5","#ff206e","#be0aff") 
+
+font_add("Candara", "Candara.ttf")
+showtext_auto()
+
+t <- theme_solarized_2(light = FALSE)+
+  theme(axis.text = element_text(color = "#fefae0"),
+        axis.title = element_text(color = "#fefae0"),
+        axis.title.x = element_blank(),
+        legend.title = element_text(family = "Candara", size = 12, color = "#fefae0"),
+        legend.text = element_text(family = "Candara", size = 12, color = "#fefae0"),
+        legend.position = "bottom",
+        legend.spacing.x = unit(0.8, 'cm'),
+        plot.title = element_text(family = "Candara", size = 20, color = "#fefae0", hjust = 0.5),
+        plot.subtitle = element_text(family = "Candara", size = 12, color = "#fefae0", hjust = 0.5))
+
+theme_set(t)
+
+#tidying for nationality of aid worker
+aid_violence_nationality <- aid_violence %>% group_by(Year) %>%
+  summarise(National = sum(`Total nationals`, na.rm = TRUE),
+            International = sum(`Total internationals`, na.rm = TRUE))
+
+aid_violence_nationality_gathered <- aid_violence_nationality %>% gather("Nationality", "Cases", 2:3)
+aid_violence_nationality_gathered <- aid_violence_nationality_gathered %>% filter(!Year == "2021")
+
+
+#plotting
+plot_nationality <- ggplot(data = aid_violence_nationality_gathered, mapping = aes(x=Year, y= Cases, color = Nationality))+
+  geom_line(size = 1)+
+  geom_point(size =3)+
+  t+
+  scale_color_manual(values = my_colors)+
+  labs(title = "Violent Incidents on National vs. International Aid Workers",
+       subtitle = "Is Localisation of Aid exposing Local Staff to greater violence?",
+       caption = "Source: Humanitarian Outcomes, Aid Worker Security Database, aidworkersecurity.org")
+  
+  
+
+plot_nationality
+
+#tidying for country of violence
+aid_violence_country <- aid_violence %>%
+  group_by(Year, Country) %>%
+  summarise(Affected = sum(`Total affected`, na.rm=TRUE))
+
+aid_violence_country <- aid_violence_country %>% filter(!is.na(Country))
+
+aid_violence_country_top_20 <- aid_violence_country %>%
+  group_by(Year) %>%
+  arrange(Year, -Affected) %>%
+  mutate(rank = 1:n()) %>%
+  filter(rank <= 10)
+
+#tidying for organisation of aid worker
+aid_violence_organisation <- aid_violence %>% group_by(Year) %>%
+  summarise(UN = sum(UN, na.rm=TRUE),
+            INGO = sum(INGO, na.rm=TRUE),
+            ICRC = sum(ICRC, na.rm=TRUE),
+            `NRCS and IFRC` = sum(`NRCS and IFRC`, na.rm=TRUE),
+            NNGO= sum(NNGO, na.rm = TRUE),
+            Others = sum(Other, na.rm=TRUE))
+
+aid_violence_organisation <-  aid_violence_organisation %>%
+  gather("Organisation", "Incidents", 2:7)   
+
+aid_violence_organisation_5 <- aid_violence_organisation %>% filter(Year >=2015)
+aid_violence_organisation_5 <- aid_violence_organisation_5 %>% filter(!Year == "2021")
+
+#plotting
+plot_organisation <- ggplot(data = aid_violence_organisation_5, aes(Year, Incidents))+
+  geom_bar(aes(fill = Organisation), stat = "identity", position = "dodge")+
+  scale_fill_manual(values = my_colors)+
+  scale_x_continuous(breaks=aid_violence_organisation_5$Year)+
+  labs(title = "Number of Aid Worker Violence Incidents by Organisation",
+       subtitle = "Staff of International Non-Governmental Organisations face highest number of violent incidents in last 6 years",
+       caption = "Source: Humanitarian Outcomes, Aid Worker Security Database, aidworkersecurity.org")
+
+plot_organisation
+
+#tidying for Means of Attack
+table(aid_violence$`Means of attack`)
+
+aid_violence_attack_type <- aid_violence %>% group_by(Year, `Means of attack`) %>%
+  summarise(Affected = sum(`Total affected`, na.rm=TRUE))
+
+target <- c("Aerial bombardment", "Kidnapping", "Shooting","Bodily assault")
+
+aid_violence_attack_type_top <- aid_violence_attack_type %>% filter(`Means of attack` %in% target)
+aid_violence_attack_type_top <- aid_violence_attack_type_top %>% filter(!Year == "2021")
+
+plot_attack_type <- ggplot(data = aid_violence_attack_type_top, aes(x=Year, y=Affected, color=`Means of attack`))+
+  geom_line(size = 1)+
+  geom_point(size=3)+
+  scale_color_manual(values = my_colors)+
+  labs(title = "Number of Incidents by Common Means of Attack",
+       caption = "Source: Humanitarian Outcomes, Aid Worker Security Database, aidworkersecurity.org")
+
+plot_attack_type
