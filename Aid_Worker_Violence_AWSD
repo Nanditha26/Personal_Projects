@@ -6,10 +6,7 @@ library(dplyr)
 library(ggplot2)
 library(ggthemes)
 library(showtext)
-library(gifski)
-library(gganimate)
-library(png)
-library(ggbump)
+
 
 #read data
 aid_violence <- read_csv(here("Datasets", "security_incidents_2021-08-12.csv"))
