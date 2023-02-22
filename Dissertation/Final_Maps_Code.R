@@ -15,7 +15,7 @@ library(sfhotspot)
 
 #Reading in crime data
 
-crimes <- read.csv("Datasets/2019-06-greater-manchester-street.csv")
+crimes <- read.csv("C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Dissertation\\2019-06-greater-manchester-street.csv")
 crimes <- clean_names(crimes)
 
 #Subsetting crime center data
@@ -49,17 +49,17 @@ crimes_center_sf_jitter_separated <- crimes_center_sf_jitter %>%
 
 #Getting House icon
 houseicon_anim <- makeIcon(
-  iconUrl = "Visuals/house_icon_anim.png",
+  iconUrl = "C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Dissertation\\house_icon_anim.png",
   iconWidth = 38, iconHeight = 38)
 
 #Getting Letter icons
 letter_icon_a <- makeIcon(
-  iconUrl = "Visuals/letter-a.png",
+  iconUrl = "C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Dissertation\\letter-a.png",
   iconWidth = 30, iconHeight = 30
 )
 
 letter_icon_b <- makeIcon(
-  iconUrl = "Visuals/letter-b.png",
+  iconUrl = "C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Dissertation\\letter-b.png",
   iconWidth = 30, iconHeight = 30
 )
 
@@ -124,6 +124,7 @@ crimes_per_hex <- crimes_center_sf_jitter_separated_BNG %>%
 crimes_per_hex <- st_transform(crimes_per_hex, 4326)
 
 bins_3 <- c(seq(from = 0, to = 80, by = 10))
+
 
 pal_3 <- colorBin("plasma",
                   domain = crimes_per_hex$n, 
@@ -295,6 +296,14 @@ cluster_map
 point_map
 hexbin_map
 rectangularbin_map
-gistar_map
 kde_map
+gistar_map
 cluster_map
+
+
+#Along networks
+data("chicago")
+plot(chicago)
+d60 <- density.lpp(unmark(chicago), 60)
+plot(d60)
+plot(d60, style="width", adjust=2.5)

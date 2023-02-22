@@ -25,7 +25,7 @@ library(sjPlot)
 
 
 #Month-wise crime data from 2018-07 to 2019-06
-data <- list.files("data", full.names = TRUE)
+data <- list.files("C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Crime Mapping\\data", full.names = TRUE)
 data2 <- lapply(data, read.csv, header = TRUE, 
                 stringsAsFactors = FALSE) 
 #first two lines call data as a list
@@ -69,7 +69,7 @@ vehicle_sf <- st_as_sf(vehicle,
                        agr = "constant")
 
 #Reading in shapefile of England LSOAs
-shp_name <- "Datasets/BoundaryData/england_lsoa_2011.shp"
+shp_name <- "C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Crime Mapping\\boundary_data\\england_lsoa_2011.shp"
 manchester_lsoa <- st_read(shp_name)
 
 manchester_lsoa_WGS <- st_transform(manchester_lsoa, 4326)
@@ -99,7 +99,7 @@ figure_2
 #Mapping rates instead of counts using census data
 
 #reading in census data
-census_lsoa_m <- read_csv("Datasets/Census_Data/Data_UNIT_URESPOP.csv")
+census_lsoa_m <- read_csv("C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Crime Mapping\\Data_UNIT_URESPOP.csv")
 
 #We don't need the first two rows
 census_lsoa_m <- slice(census_lsoa_m, 3:284)
@@ -160,7 +160,7 @@ figure_3
 #Now we have decided that MCC is our primary area of interest
 
 #Read in geojson file with manchester wards
-manchester_ward <- st_read("Datasets/manchester_ward.geojson")
+manchester_ward <- st_read("C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Crime Mapping\\manchester_ward.geojson")
 
 #filtering out only city center area
 
@@ -189,7 +189,7 @@ figure_4
 #Spatial Randomness, here remember we are using original sf data, not grouped by lsoa as we want to see each incident as a point.
 
 #Reading in shapefile of MCC lsoas
-cc_lsoas <- st_read("Datasets/cc_lsoas.geojson")
+cc_lsoas <- st_read("C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\Crime Mapping\\cc_lsoas.geojson")
 
 vehicle_cc <- st_intersects(cc_lsoas, vehicle_sf)
 
@@ -338,6 +338,7 @@ city_center_prems <- city_center_prems %>%
   mutate(longitude = map_chr(POSTCODE, geocode_addys_getlng),
          latitude = map_chr(POSTCODE, geocode_addys_getlat)) #map_chr allows the function we created to input each observation of the column specified, here POSTCODE
 
+geocode_addys_getlng("M15JG")
 
 city_center_prems$longitude <- as.numeric(city_center_prems$longitude)
 
@@ -445,6 +446,8 @@ leaflet(vehicle_per_parking) %>%
               popupOptions = popupOptions(autoClose = FALSE, closeOnClick = FALSE)) %>% 
   addLegend(pal = pal, values = ~n, opacity = 0.7, 
             title = 'Vehicle crimes', position = "bottomleft")
+
+
 
 
 
