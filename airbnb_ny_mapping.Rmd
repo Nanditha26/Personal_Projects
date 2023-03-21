@@ -1,0 +1,55 @@
+---
+title: "Sample Airbnb Mapping"
+author: "Nanditha Plakazhi"
+date: "2023-02-23"
+output: html_document
+---
+
+## Loading libraries
+```{r}
+library(tidyverse)
+library(sf)
+library(leaflet)
+```
+
+
+## Loading in the data
+```{r}
+df <- read_csv("C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\data\\AB_NYC_2019.csv")
+```
+
+## Making sf
+```{r}
+df_sf <- st_as_sf(df,
+               crs = 4326,
+               coords = c("longitude", "latitude"),
+               agr = "constant")
+
+```
+
+## Reading in New York Boroughs shapefile
+```{r}
+shp_name <- "C:\\Users\\NandithaPlakazhi\\OneDrive - Trilateral Research Ltd\\Documents\\GitHub\\Personal_Projects\\data\\nyu-2451-34490-shapefile\\nyu_2451_34490.shp"
+ny_boroughs <- st_read(shp_name)
+```
+
+##Trying on Leaflet - Point Map
+```{r}
+##Adding back longitude and latitude columns for Leaflet
+
+df_sf <- df_sf %>%
+  mutate(long = unlist(map(df_sf$geometry, 1)),
+         lat = unlist(map(df_sf$geometry, 2)))
+
+point_map <- leaflet(df_sf) %>%
+  addProviderTiles(providers$CartoDB.PositronNoLabels)%>% 
+  addCircleMarkers(data = df_sf,
+                   ~long, ~lat,
+                   color = "#4439c4",
+                   stroke = FALSE,
+                   fillOpacity = 0.8,
+                   radius = 4)
+
+```
+## Leaflet - Cluster Map
+
